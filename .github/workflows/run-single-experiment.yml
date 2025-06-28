@@ -37,6 +37,7 @@ jobs:
     
         - name: clone repo
           run: |
+            mkdir -p ./projects
             cd ./projects
             git clone https://${{ secrets.GH_ACCESS_TOKEN }}@github.com/denini08/new-NonDex.git
             cd new-NonDex
