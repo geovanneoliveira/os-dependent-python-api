@@ -89,3 +89,31 @@ jobs:
               draft: false
               prerelease: true
               token: ${{ secrets.GITHUB_TOKEN }}
+
+  get-results:
+    runs-on: ubuntu-latest
+    needs: run-experiment
+    steps:
+      - name: Merge results
+        id: merge-results
+        run: |
+          mkdir -p ./merged-results
+          cd ./merged-results
+          cp ../scripts/get_all_results_csv.sh .
+          chmod +x get_all_results_csv.sh
+          ./get_all_results_csv.sh https://github.com/${{ github.repository_owner }}/os-dependent-python-api/releases/tag/${{ inputs.release-name }}
+
+      - name: Upload merged results
+        uses: Wandalen/wretry.action@master
+        with:
+          attempt_delay: 60000 # 1 min
+          attempt_limit: 10
+          action: softprops/action-gh-release@v1
+          with: |
+            files: ./merged-results/outputs/*.csv
+            tag_name: ${{ inputs.release-name }}
+            name: ${{ inputs.release-name }}
+            draft: false
+            prerelease: true
+            token: ${{ secrets.GITHUB_TOKEN }}
+        
