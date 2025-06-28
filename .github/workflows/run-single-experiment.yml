@@ -28,11 +28,6 @@ jobs:
         - uses: actions/checkout@v4
           with:
             fetch-depth: 0
-    
-        - name: Prepare Working Directory
-          run: |
-              mkdir ./projects
-              cd ./projects
 
         - name: Set up Python
           uses: actions/setup-python@v2
@@ -50,23 +45,34 @@ jobs:
             echo "================================================"
             ls -l
             echo "================================================"
-    
+
+        - name: Setup variables
+          run: |
+              REPO_URL=$(echo "${{ inputs.project-link }}" | sed 's/;.*//')
+              REPO_NAME="${REPO_URL##*/}"  # This strips everything before the last '/' character
+              OWNER_NAME="${REPO_URL%/$REPO_NAME}"  # Removes the repo name from the URL, leaving the owner path
+              OWNER_NAME="${OWNER_NAME##*/}"  # Extracts only the owner name
+              FULL_REPO_NAME="$OWNER_NAME-$REPO_NAME"  # Combines owner and repository names with a dash
+
+              ZIP_FILE="${FULL_REPO_NAME}_results.zip"
+              echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+          shell: bash
+
         - name: Run Experiment
           id: run-experiment
           run: |
-            echo "Running experiment with the following parameters:"
-            echo "Project Link: ${{ inputs.project-link }}"
-            echo "Release Name: ${{ inputs.release-name }}"
-            echo "Branch: ${{ inputs.branch }}"
-            echo "Operating System: ${{ matrix.os }}"
-            echo "================================================"
-            REPO_NAME=$(basename "${{ inputs.project-link }}" .git)
+            # Split the input into link and sha
+            IFS=';' read -r url target_sha <<< "${{ inputs.project-link }}"
+
+            cd ./projects/new-NonDex/plugin-system
+            chmod +x install_and_run.sh
+            ./install_and_run.sh $url $target_sha ${{ matrix.os }} 
 
         - name: Zip result files
           run: |
-            cd ./projects/reports/$REPO_NAME
-            zip -r ../../$ZIP_FILE .  # Create a zip file in the projects directory
-            ls -l ../
+            cd ./projects/new-NonDex/plugin-system/results
+            zip -r ../../../$ZIP_FILE .  # Create a zip file in the projects directory
+            ls -l ../../../
           shell: bash
     
         - name: Upload result to GitHub Release
