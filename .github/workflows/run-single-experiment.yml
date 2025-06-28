@@ -105,6 +105,7 @@ jobs:
 
       - name: Upload merged results
         uses: Wandalen/wretry.action@master
+        if: always()
         with:
           attempt_delay: 60000 # 1 min
           attempt_limit: 10
