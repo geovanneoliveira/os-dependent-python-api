@@ -9,7 +9,7 @@ on:
       google_sheet_id:
         description: 'ID of the Google Sheet containing repository links and where results will be appended. Id is located in the URL of the Google Sheet https://docs.google.com/spreadsheets/d/<ID>/edit. The sheet should add "mass-run-mop@mohas-filemap-cloud.iam.gserviceaccount.com" as an editor'
         required: true
-        default: '1mWRsxwLih48Zd5TdZCpM_Qv7VPIn0lzlD9lsXV6zDl0'
+        default: '1PMDZVQSVTroFsPFuZia3HVZ4kRWC6NmI__fV1OA3oI8'
       links_worksheetTitle:
         description: 'Title of the tab containing the links. Default is "links". The first column should contain the links to the repositories. a maximum of 256 links can be added.'
         required: false
