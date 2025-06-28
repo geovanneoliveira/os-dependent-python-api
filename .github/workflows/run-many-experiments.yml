@@ -1,0 +1,68 @@
+name: Run Scripts on Multiple Repositories
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      google_sheet_id:
+        description: 'ID of the Google Sheet containing repository links and where results will be appended. Id is located in the URL of the Google Sheet https://docs.google.com/spreadsheets/d/<ID>/edit. The sheet should add "mass-run-mop@mohas-filemap-cloud.iam.gserviceaccount.com" as an editor'
+        required: true
+        default: '1mWRsxwLih48Zd5TdZCpM_Qv7VPIn0lzlD9lsXV6zDl0'
+      links_worksheetTitle:
+        description: 'Title of the tab containing the links. Default is "links". The first column should contain the links to the repositories. a maximum of 256 links can be added.'
+        required: false
+        default: 'links-1'
+      release_name:
+        description: 'Name of the release to be created.'
+        default: output-2025-06-28-morning
+        required: true
+      branch:
+        description: 'Branch of the repository to use.'
+        default: 'main'
+        required: true
+  repository_dispatch:
+    types: [run-multiple-repos]
+
+jobs:
+  fetch_data:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip3 install pygsheets PyGithub
+
+      - name: Prepare matrix
+        id: set-matrix
+        run: python3 scripts/get_repo_links.py
+        env:
+            GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+            GOOGLE_SHEET_ID: ${{ github.event.inputs.google_sheet_id || github.event.client_payload.google_sheet_id }}
+            LINKS_TAB_NAME: ${{github.event.inputs.links_worksheetTitle || github.event.client_payload.links_worksheetTitle}}
+
+  run_jobs:
+    needs: fetch_data
+    uses: mohasarc/spec-mining/.github/workflows/run-single-experiment.yml@main
+    with:
+      project-link: ${{ matrix.repo-link }}
+      release-name: ${{ github.event.inputs.release_name || github.event.client_payload.release_name }}
+      branch: ${{ github.event.inputs.branch || github.event.client_payload.branch }}
+    secrets:
+      GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        repo-link: ${{ fromJson(needs.fetch_data.outputs.matrix) }}
+

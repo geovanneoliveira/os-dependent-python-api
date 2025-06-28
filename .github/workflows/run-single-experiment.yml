@@ -1,0 +1,84 @@
+name: Run Project
+
+on:
+  workflow_call:
+    inputs:
+      project-link:
+        required: true
+        type: string
+      release-name:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+        default: "add_statistics_new"
+    secrets: 
+      GH_ACCESS_TOKEN:
+        required: true 
+jobs:
+  run-experiment:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    timeout-minutes: 300
+    steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+    
+        - name: Prepare Working Directory
+          run: |
+              mkdir ./projects
+              cd ./projects
+
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            python-version: '3.12.8'
+    
+        - name: clone repo
+          run: |
+            cd ./projects
+            git clone https://${{ secrets.GH_ACCESS_TOKEN }}@github.com/denini08/new-NonDex.git
+            cd new-NonDex
+            git checkout ${{ inputs.branch }}
+            git rev-parse HEAD
+            echo "================================================"
+            ls -l
+            echo "================================================"
+    
+        - name: Run Experiment
+          id: run-experiment
+          run: |
+            echo "Running experiment with the following parameters:"
+            echo "Project Link: ${{ inputs.project-link }}"
+            echo "Release Name: ${{ inputs.release-name }}"
+            echo "Branch: ${{ inputs.branch }}"
+            echo "Operating System: ${{ matrix.os }}"
+            echo "================================================"
+            REPO_NAME=$(basename "${{ inputs.project-link }}" .git)
+
+        - name: Zip result files
+          run: |
+            cd ./projects/reports/$REPO_NAME
+            zip -r ../../$ZIP_FILE .  # Create a zip file in the projects directory
+            ls -l ../
+          shell: bash
+    
+        - name: Upload result to GitHub Release
+          uses: Wandalen/wretry.action@master
+          with:
+            attempt_delay: 60000 # 1 min
+            attempt_limit: 10
+            action: softprops/action-gh-release@v1
+            with: |
+              files: ./projects/${{env.ZIP_FILE}}
+              tag_name: ${{ inputs.release-name }}
+              name: ${{ inputs.release-name }}
+              draft: false
+              prerelease: true
+              token: ${{ secrets.GITHUB_TOKEN }}
