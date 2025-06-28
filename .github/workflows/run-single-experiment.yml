@@ -55,7 +55,7 @@ jobs:
               OWNER_NAME="${OWNER_NAME##*/}"  # Extracts only the owner name
               FULL_REPO_NAME="$OWNER_NAME-$REPO_NAME"  # Combines owner and repository names with a dash
 
-              ZIP_FILE="${FULL_REPO_NAME}_results.zip"
+              ZIP_FILE="${FULL_REPO_NAME}_results_${{matrix.os}}.zip"
               echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
           shell: bash
 
