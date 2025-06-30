@@ -76,7 +76,7 @@ jobs:
           with:
             type: 'zip'
             directory: './projects/new-NonDex/plugin-system/results'
-            filename: '../../../$ZIP_FILE'
+            filename: '../../../${{env.ZIP_FILE}}'
     
         - name: Upload result to GitHub Release
           uses: Wandalen/wretry.action@master
