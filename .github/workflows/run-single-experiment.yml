@@ -61,7 +61,7 @@ jobs:
           shell: bash
 
         - name: Run Experiment
-          id: run-experiment
+          id: run-experiment-script
           run: |
             # Split the input into link and sha
             IFS=';' read -r url target_sha <<< "${{ inputs.project-link }}"
@@ -91,37 +91,4 @@ jobs:
               draft: false
               prerelease: true
               token: ${{ secrets.GITHUB_TOKEN }}
-
-  get-results:
-    runs-on: ubuntu-latest
-    needs: run-experiment
-    if: always()
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-  
-      - name: Merge results
-        id: merge-results
-        run: |
-          mkdir -p ./merged-results
-          cd ./merged-results
-          cp ../scripts/get_all_results_csv.sh .
-          chmod +x get_all_results_csv.sh
-          ./get_all_results_csv.sh https://github.com/${{ github.repository_owner }}/os-dependent-python-api/releases/tag/${{ inputs.release-name }}
-        shell: bash
-
-      - name: Upload merged results
-        uses: Wandalen/wretry.action@master
-        with:
-          attempt_delay: 60000 # 1 min
-          attempt_limit: 10
-          action: softprops/action-gh-release@v1
-          with: |
-            files: ./merged-results/outputs/*.csv
-            tag_name: ${{ inputs.release-name }}
-            name: ${{ inputs.release-name }}
-            draft: false
-            prerelease: true
-            token: ${{ secrets.GITHUB_TOKEN }}
         
