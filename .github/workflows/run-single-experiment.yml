@@ -97,6 +97,10 @@ jobs:
     needs: run-experiment
     if: always()
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+  
       - name: Merge results
         id: merge-results
         run: |
