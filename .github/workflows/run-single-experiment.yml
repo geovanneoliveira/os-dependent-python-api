@@ -72,11 +72,11 @@ jobs:
           shell: bash
 
         - name: Zip result files
-          run: |
-            cd ./projects/new-NonDex/plugin-system/results
-            zip -r ../../../$ZIP_FILE .  # Create a zip file in the projects directory
-            ls -l ../../../
-          shell: bash
+          uses: thedoctor0/zip-release@0.7.5
+          with:
+            type: 'zip'
+            directory: './projects/new-NonDex/plugin-system/results'
+            filename: '../../../$ZIP_FILE'
     
         - name: Upload result to GitHub Release
           uses: Wandalen/wretry.action@master
