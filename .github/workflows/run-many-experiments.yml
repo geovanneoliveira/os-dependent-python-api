@@ -82,7 +82,7 @@ jobs:
           cd ./merged-results
           cp ../scripts/get_all_results_csv.sh .
           chmod +x get_all_results_csv.sh
-          ./get_all_results_csv.sh https://github.com/${{ github.repository_owner }}/os-dependent-python-api/releases/tag/${{ inputs.release-name }}
+          ./get_all_results_csv.sh https://github.com/${{ github.repository_owner }}/os-dependent-python-api/releases/tag/${{ github.event.inputs.release_name }}
         shell: bash
 
       - name: Upload merged results
@@ -93,8 +93,8 @@ jobs:
           action: softprops/action-gh-release@v1
           with: |
             files: ./merged-results/outputs/*.csv
-            tag_name: ${{ inputs.release-name }}
-            name: ${{ inputs.release-name }}
+            tag_name: ${{ github.event.inputs.release_name }}
+            name: ${{ github.event.inputs.release_name }}
             draft: false
             prerelease: true
             token: ${{ secrets.GITHUB_TOKEN }}
