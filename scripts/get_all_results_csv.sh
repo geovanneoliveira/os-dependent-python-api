@@ -41,7 +41,7 @@ if echo "$RELEASE_DATA" | jq -e '.assets | length > 0' >/dev/null; then
     for url in $ZIP_URLS; do
         FILENAME=$(basename "$url")
         echo "[INFO] Downloading: $FILENAME"
-        curl -L -o "$FILENAME" "$url"
+        curl -s -L -o "$FILENAME" "$url"
     done
 else
     echo "[ERROR] No assets found for this release."
@@ -55,8 +55,13 @@ for zipfile in *.zip; do
     DEST="$OUTPUT_DIR/$BASENAME"
     mkdir -p "$DEST"
     echo "[INFO] Unzipping $zipfile into $DEST"
-    unzip -q "$zipfile" -d "$DEST"
-    $KEEP_ZIPS || rm "$zipfile"
+    if unzip -q "$zipfile" -d "$DEST"; then
+        echo "[INFO] Successfully unzipped $zipfile"
+        $KEEP_ZIPS || rm "$zipfile"
+    else
+        echo "[WARN] Failed to unzip $zipfile — skipping"
+    fi
+    $KEEP_ZIPS || rm -f "$zipfile" 
 done
 
 # Step 3: Merge CSVs
