@@ -95,7 +95,7 @@ jobs:
           attempt_limit: 10
           action: softprops/action-gh-release@v1
           with: |
-            files: ./merged-results/outputs/*.csv
+            files: ./merged-results/final.csv
             tag_name: ${{ github.event.inputs.release_name }}
             name: ${{ github.event.inputs.release_name }}
             draft: false
