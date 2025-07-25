@@ -29,12 +29,11 @@ jobs:
           with:
             fetch-depth: 0
 
-        # - name: Set up Python
-        #   uses: actions/setup-python@v2
-        #   with:
-        #     token: ${{ secrets.GITHUB_TOKEN }}
-        #     python-version: '3.12.8'
-              # - name: Set up Python
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            python-version: '3.12.8'
               
         - name: Check version
           run: python3 --version
