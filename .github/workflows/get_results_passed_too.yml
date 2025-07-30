@@ -1,4 +1,4 @@
-name: Get Results Only
+name: Get Results ALL
 
 on:
   workflow_dispatch:
