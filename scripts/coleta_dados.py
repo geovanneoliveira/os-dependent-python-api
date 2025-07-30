@@ -83,11 +83,30 @@ def main():
         csv_file = None
         json_file = None
 
-        for file in os.listdir(subpath):
-            if file.endswith(".csv"):
-                csv_file = os.path.join(subpath, file)
-            elif file.endswith(".json"):
-                json_file = os.path.join(subpath, file)
+        print(f'Processando subdir: {subpath}')
+
+        # os.walk percorre recursivamente todas as subpastas
+        for root, dirs, files in os.walk(subpath):
+            for file in files:
+                if file.endswith(".csv") and csv_file is None:
+                    csv_file = os.path.join(root, file)
+                    print(f'  CSV encontrado: {csv_file}')
+                elif file.endswith(".json") and json_file is None:
+                    json_file = os.path.join(root, file)
+                    print(f'  JSON encontrado: {json_file}')
+                
+                # Para quando encontrar ambos os arquivos
+                if csv_file and json_file:
+                    break
+            
+            if csv_file and json_file:
+                break
+
+        # Processar os arquivos encontrados
+        # if csv_file or json_file:
+        print(f'  Arquivos finais - CSV: {csv_file}, JSON: {json_file}')
+        # Aqui você faria o processamento dos arquivos
+
 
         if not csv_file or not json_file:
             print(f"⚠️  Arquivos CSV ou JSON faltando em {subpath}")

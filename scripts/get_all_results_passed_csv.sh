@@ -78,6 +78,6 @@ if [ ! -f "$PYTHON_SCRIPT" ]; then
     exit 1
 fi
 
-python3 "$PYTHON_SCRIPT" "$OUTPUT_DIR"
+python3 "$PYTHON_SCRIPT"  $PWD/"$OUTPUT_DIR"
 
 echo "[INFO] CSV final gerado: $OUTPUT_DIR/$FINAL_CSV"
