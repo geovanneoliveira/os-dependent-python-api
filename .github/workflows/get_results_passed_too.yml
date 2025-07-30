@@ -6,6 +6,9 @@ on:
       release_name:
         description: 'Name of the release to fetch results from.'
         required: true
+      owner:
+        description: 'Owner of the repository (optional). Defaults to repository owner.'
+        required: false
 
 jobs:
   get-results:
@@ -15,6 +18,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set owner variable
+        id: set-owner
+        run: |
+          if [ -z "${{ github.event.inputs.owner }}" ]; then
+            echo "OWNER=${{ github.repository_owner }}" >> $GITHUB_ENV
+          else
+            echo "OWNER=${{ github.event.inputs.owner }}" >> $GITHUB_ENV
+          fi
+
       - name: Merge results
         id: merge-results
         run: |
@@ -23,7 +35,7 @@ jobs:
           cp ../scripts/get_all_results_passed_csv.sh .
           cp ../scripts/coleta_dados.py .
           chmod +x get_all_results_passed_csv.sh
-          ./get_all_results_passed_csv.sh https://github.com/${{ github.repository_owner }}/os-dependent-python-api/releases/tag/${{ github.event.inputs.release_name }}
+          ./get_all_results_passed_csv.sh https://github.com/${OWNER}/os-dependent-python-api/releases/tag/${{ github.event.inputs.release_name }}
           pwd
           ls
           ls outputs
