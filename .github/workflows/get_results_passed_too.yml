@@ -26,6 +26,8 @@ jobs:
           ./get_all_results_passed_csv.sh https://github.com/${{ github.repository_owner }}/os-dependent-python-api/releases/tag/${{ github.event.inputs.release_name }}
           pwd
           ls
+          ls outputs
+          wc -l outputs/final_all.csv
         shell: bash
 
       - name: Upload merged results
