@@ -1,5 +1,8 @@
 name: Get Results ALL
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
